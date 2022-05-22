@@ -4,7 +4,7 @@ Description: Create an autoscaling group using t2.micro EC2 instances across 2 p
 Resources:
   
   #Creating launch template that will install Apache upon any EC2 Instance startup
-  LaunchTemplate:
+  MyLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:
       LaunchTemplateName: Wk7LaunchTemplate
@@ -12,7 +12,7 @@ Resources:
         ImageId: ami-0022f774911c1d690
         InstanceType: t2.micro
         SecurityGroups: 
-        - !Ref WebSecurityGroup
+        - !Ref MySecurityGroup
         UserData: 
           Fn::Base64: !Sub |
             #!/bin/bash
@@ -21,8 +21,8 @@ Resources:
             systemctl start httpd 
             systemctl enable httpd
 
-  #This will create a security group and allow us to receive traffic from Apache Server
-  WebSecurityGroup:
+  #This will create a security group and allow us to receive web traffic and ssh into the instances
+  MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow inbound traffic from HTTP
@@ -31,13 +31,19 @@ Resources:
           FromPort: 80
           IpProtocol: tcp
           ToPort: 80
+      GroupDescription: Allow inbound traffic from SSH
+      SecurityGroupIngress:
+          CidrIp: 0.0.0.0/0
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
   
   #Creating autoscaling group with desired minimum and maximum size
   MyASG:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       LaunchTemplate:
-        LaunchTemplateId: !Ref LaunchTemplate
+        LaunchTemplateId: !Ref MyLaunchTemplate
         Version: !GetAtt LaunchTemplate.LatestVersionNumber
       MinSize: 2
       MaxSize: 5
