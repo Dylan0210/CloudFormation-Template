@@ -11,6 +11,7 @@ Resources:
       LaunchTemplateData:
         ImageId: ami-0022f774911c1d690
         InstanceType: t2.micro
+        KeyName: MyKeyPair
         SecurityGroups: 
         - !Ref MySecurityGroup
         UserData: 
@@ -25,15 +26,13 @@ Resources:
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow inbound traffic from HTTP
+      GroupDescription: Allow inbound traffic from HTTP and SSH
       SecurityGroupIngress:
-          CidrIp: 0.0.0.0/0
+        - CidrIp: 0.0.0.0/0
           FromPort: 80
           IpProtocol: tcp
           ToPort: 80
-      GroupDescription: Allow inbound traffic from SSH
-      SecurityGroupIngress:
-          CidrIp: 0.0.0.0/0
+        - CidrIp: 0.0.0.0/0
           FromPort: 22
           IpProtocol: tcp
           ToPort: 22
