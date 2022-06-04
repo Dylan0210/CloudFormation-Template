@@ -1,1 +1,49 @@
+#This is still in the making please do not try to use! IT IS NOT CLOSE TO COMLPLETE!
 
+
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  wk9-vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        - Key: wk9-vpc
+          Value: project
+       
+  PublicSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: wk9-vpc
+        CidrBlock: 10.0.0.0/19
+        AvailabilityZone: "us-east-1a"
+        
+  PublicSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: wk9-vpc
+        CidrBlock: 10.0.32.0/19
+        AvailabilityZone: "us-east-1b"        
+  
+  myInternetGateway:
+      Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: wk9-vpc
+      InternetGatewayId:
+        Ref: myInternetGateway
+
+  myNAT:
+    Type: AWS::EC2::NatGateway
+    Properties:
+        SubnetId:
+          Ref: Subnet
+  
