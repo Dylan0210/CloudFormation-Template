@@ -79,6 +79,6 @@ Resources:
         SubnetId:
           Ref: Subnet
   
-  NatGateway1EIP:
+  NatGatewayEIP:
     Type: AWS::EC2::EIP
     DependsOn: InternetGatewayAttachment
