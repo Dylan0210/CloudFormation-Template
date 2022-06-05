@@ -35,7 +35,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: us-east-1a
-      CidrBlock: 10.0.10.0/24
+      CidrBlock: 10.0.11.0/24
       MapPublicIpOnLaunch: false
   
   PrivateSubnet2:
@@ -43,7 +43,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: us-east-1b
-      CidrBlock: 10.0.11.0/24
+      CidrBlock: 10.0.12.0/24
       MapPublicIpOnLaunch: false
        
   PrivateSubnet3:
@@ -51,7 +51,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: us-east-1a
-      CidrBlock: 10.0.12.0/24
+      CidrBlock: 10.0.13.0/24
       MapPublicIpOnLaunch: false
        
   PrivateSubnet4:
@@ -59,7 +59,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: us-east-1b
-      CidrBlock: 10.0.13.0/24
+      CidrBlock: 10.0.14.0/24
       MapPublicIpOnLaunch: false
   
   myInternetGateway:
