@@ -15,55 +15,55 @@ Resources:
           Value: project
        
   PublicSubnet1:
-      Type: AWS::EC2::Subnet
-      Properties:
-        VpcId:
-          Ref: wk9-vpc
-        CidrBlock: 10.0.1.0/24
-        AvailabilityZone: "us-east-1a"
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: wk9-vpc
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: "us-east-1a"
         
   PublicSubnet2:
-      Type: AWS::EC2::Subnet
-      Properties:
-        VpcId:
-          Ref: wk9-vpc
-        CidrBlock: 10.0.2.0/24
-        AvailabilityZone: "us-east-1b"        
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: wk9-vpc
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: "us-east-1b"        
   
   PrivateSubnet1:
-     Type: AWS::EC2::Subnet
-     Properties:
-       VpcId: !Ref VPC
-       AvailabilityZone: us-east-1a
-       CidrBlock: 10.0.10.0/24
-       MapPublicIpOnLaunch: false
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-east-1a
+      CidrBlock: 10.0.10.0/24
+      MapPublicIpOnLaunch: false
   
   PrivateSubnet2:
-     Type: AWS::EC2::Subnet
-     Properties:
-       VpcId: !Ref VPC
-       AvailabilityZone: us-east-1b
-       CidrBlock: 10.0.11.0/24
-       MapPublicIpOnLaunch: false
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-east-1b
+      CidrBlock: 10.0.11.0/24
+      MapPublicIpOnLaunch: false
        
   PrivateSubnet3:
-     Type: AWS::EC2::Subnet
-     Properties:
-       VpcId: !Ref VPC
-       AvailabilityZone: us-east-1a
-       CidrBlock: 10.0.12.0/24
-       MapPublicIpOnLaunch: false
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-east-1a
+      CidrBlock: 10.0.12.0/24
+      MapPublicIpOnLaunch: false
        
   PrivateSubnet4:
-     Type: AWS::EC2::Subnet
-     Properties:
-       VpcId: !Ref VPC
-       AvailabilityZone: us-east-1b
-       CidrBlock: 10.0.13.0/24
-       MapPublicIpOnLaunch: false
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: us-east-1b
+      CidrBlock: 10.0.13.0/24
+      MapPublicIpOnLaunch: false
   
   myInternetGateway:
-      Type: AWS::EC2::InternetGateway
+    Type: AWS::EC2::InternetGateway
 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -80,5 +80,5 @@ Resources:
           Ref: Subnet
   
   NatGateway1EIP:
-   Type: AWS::EC2::EIP
-   DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
