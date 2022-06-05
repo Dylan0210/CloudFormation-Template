@@ -19,7 +19,7 @@ Resources:
       Properties:
         VpcId:
           Ref: wk9-vpc
-        CidrBlock: 10.0.0.0/19
+        CidrBlock: 10.0.1.0/24
         AvailabilityZone: "us-east-1a"
         
   PublicSubnet2:
@@ -27,7 +27,7 @@ Resources:
       Properties:
         VpcId:
           Ref: wk9-vpc
-        CidrBlock: 10.0.32.0/19
+        CidrBlock: 10.0.2.0/24
         AvailabilityZone: "us-east-1b"        
   
   myInternetGateway:
