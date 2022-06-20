@@ -1,84 +1,141 @@
-#This is still in the making please do not try to use! IT IS NOT CLOSE TO COMLPLETE!
-
-
 AWSTemplateFormatVersion: 2010-09-09
 
 Resources:
-  wk9-vpc:
+  VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
       EnableDnsSupport: 'true'
       EnableDnsHostnames: 'true'
       Tags:
-        - Key: wk9-vpc
-          Value: project
+        - Key: Name
+        - Value: Custom VPC
        
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId:
-        Ref: wk9-vpc
+      VpcId: !Ref VPC
       CidrBlock: 10.0.1.0/24
-      AvailabilityZone: "us-east-1a"
+      Availability Zone: !Select [ 1, !GetAZs '' ]
+      MapPublicIpOnLaunch: true
         
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId:
-        Ref: wk9-vpc
+      VpcId: !Ref VPC
       CidrBlock: 10.0.2.0/24
-      AvailabilityZone: "us-east-1b"        
-  
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: us-east-1a
-      CidrBlock: 10.0.11.0/24
-      MapPublicIpOnLaunch: false
-  
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: us-east-1b
-      CidrBlock: 10.0.12.0/24
-      MapPublicIpOnLaunch: false
-       
-  PrivateSubnet3:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: us-east-1a
-      CidrBlock: 10.0.13.0/24
-      MapPublicIpOnLaunch: false
-       
-  PrivateSubnet4:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: us-east-1b
-      CidrBlock: 10.0.14.0/24
-      MapPublicIpOnLaunch: false
-  
-  myInternetGateway:
-    Type: AWS::EC2::InternetGateway
+      Availability Zone: !Select [ 2, !GetAZs '' ]
+      MapPublicIpOnLaunch: true
 
-  AttachGateway:
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties: 
+      Tags:
+        - Key: Name
+        - Value: Custom IGW
+
+  InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId:
-        Ref: wk9-vpc
-      InternetGatewayId:
-        Ref: myInternetGateway
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
 
-  myNAT:
-    Type: AWS::EC2::NatGateway
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
     Properties:
-        SubnetId:
-          Ref: Subnet
-  
-  NatGatewayEIP:
-    Type: AWS::EC2::EIP
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+        - Value: Custom Route Table
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
     DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+  
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow inbound traffic from HTTP and SSH
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: LaunchTemplate
+      LaunchTemplateData:
+        ImageId: ami-0022f774911c1d690
+        InstanceType: t2.micro
+        KeyName: MyKeyPair
+        SecurityGroups: !Ref SecurityGroup
+        UserData: 
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y 
+            yum install -y httpd 
+            systemctl start httpd 
+            systemctl enable httpd
+            echo "<html><head><title>Week11Project</title></head><body style="background-color:red">Keep Leveling Up!!</body></html>" > /var/www/html/index.html
+            amazon-linux-extras install epel -y
+            yum install stress -y
+            
+  ASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: !GetAtt LaunchTemplate.LatestVersionNumber
+      MinSize: 2
+      MaxSize: 4
+      DesiredCapacity: 2
+      AvailabilityZones: 
+      - !Ref PublicSubnet1
+      - !Ref PublicSubnet2
+      MetricsCollection:
+      - Granularity: 1Minute
+      
+  ScalingPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref ASG
+      ScalingAdjustment: '1'
+
+  CloudWatchAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: 1
+      Statistic: Average
+      Threshold: '80'
+      AlarmDescription: Alarm if CPU higher than 80%
+      Period: '60'
+      AlarmActions: !Ref ScalingPolicy
+      Namespace: AWS
+      Dimensions:
+        - Name: ASGName
+        - Value: !Ref ASG
+      ComparisonOperator: GreaterThanThreshold
+      MetricName: CPUUtilization     
